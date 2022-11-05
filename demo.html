@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+
+    <style>
+        .avatar {
+            height: 50px;
+            width: 50px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body class="container">
+    <br>
+    <button class="btn btn-primary" onclick="getData();">Get Data</button>
+
+    <!-- <input type="search" class="form-control" placeholder="Search" onkeyup="searchData(event);"> -->
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody id="users">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination" id="pages">
+
+                </ul>
+            </nav>
+        </tbody>
+    </table>
+
+    <!-- Bootstrap JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+        </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+        integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
+        </script>
+
+    <script>
+        var response = null;
+        var tbody = document.getElementById('users');
+        var selectedPage = 1;
+        var hasLoadedPagination = false;
+        var total = null;
+        
+        
+        getData();
+        function getData() {
+            fetch('https://reqres.in/api/users?page=' + selectedPage)
+                .then(res => res.json())
+                .then(data => {
+                    showData(data);
+                    //console.log(data)
+                    if (!hasLoadedPagination) {
+                        showPagination();
+                        hasLoadedPagination = true;
+                    }
+                })
+        }
+
+        function showData(js) {
+           // console.log(js);
+            response = js;
+            total = js.total_pages;
+            //console.log(total)
+            // for (let i = 0; i < json.data.length; i++) {
+            //     const user = json.data[i];
+            //     console.log(user.email);
+            // }
+            tbody.innerHTML = "";
+            js.data.forEach(user => {
+                //console.log(user.email);
+                var row = `
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.first_name}</td>
+                <td>${user.last_name}</td>
+                <td>${user.email}</td>
+            </tr>
+        `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function showPagination() {
+            var pages = document.getElementById('pages');
+            
+            //console.log(pages)
+            
+            pages.innerHTML += `
+        <li class="page-item" >
+            <a class="page-link" href="#" onclick="return navPrevNext('p')" id="prev">Previous</a>
+        </li>
+        `;
+
+            for (let i = 1; i <= response.total_pages; i++) {
+                pages.innerHTML += `
+            <li class="page-item">
+                <a class="page-link" href="#" onClick="return navPrevNext(${i})">${i}</a>
+            </li>
+        `;
+            }
+
+            pages.innerHTML += `
+        <li class="page-item">
+            <a class="page-link" href="#" onclick="return navPrevNext('n')" id="next">Next</a>
+        </li>
+        `;
+        //var prevs = document.getElementById('prev');
+        //console.log(prevs)
+        }
+
+        function navPrevNext(option) {
+            
+            //console.log(prev)
+            if (option == 'p') {
+                selectedPage--;
+            }
+            else if(option == 'n'){
+                selectedPage++;
+            }
+            else{
+                selectedPage = option;
+            }
+            tooggleButtons();
+            getData();
+        }
+
+        function tooggleButtons(){
+            var prev = document.getElementById('prev');
+            var next = document.getElementById('next');
+           // console.log(selectedPage, total);
+            if(selectedPage === 1){
+               prev.style.display = 'none';
+                //prev.classList.add('disabled')
+            }
+            if(selectedPage === total){
+                next.style.display = 'none';
+                //alert("eql")
+            }
+            if(selectedPage < total){
+                next.style.display = 'block';
+            }
+            if(selectedPage > 1){
+                prev.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
